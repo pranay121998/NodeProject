@@ -2,6 +2,7 @@ const path = require('path')
 const express = require('express');
 const bodyParser = require('body-parser');
 const errorController = require('./controllers/errors')
+const db = require('./utils/database')
 
 const app = express();
 
@@ -9,7 +10,8 @@ const expressHbs = require('express-handlebars')
 // const ejs = require('ejs');
 
 const adminRoutes = require('./routes/admin');
-const shopRoutes =require('./routes/shop')
+const shopRoutes =require('./routes/shop');
+const { copyFileSync } = require('fs');
 // app.set('view engine',"pug");
 // app.set('views','views')
 
@@ -22,6 +24,7 @@ app.set('views','views')
 app.use(express.static(path.join(__dirname,"public")));
 
 app.use(bodyParser.urlencoded({extended : false}));
+
 
 
 app.use("/admin",adminRoutes);
