@@ -18,7 +18,7 @@ account = {
   pop3: { host: "pop3.ethereal.email", port: 995, secure: true },
   web: "https://ethereal.email",
 };
-// console.log(testAccount)
+console.log(account)
 transport = nodemailer.createTransport({
   host: account.smtp.host,
   port: account.smtp.port,
@@ -44,17 +44,46 @@ exports.getLogin = (req, res, next) => {
     pageTitle: "Login",
     csrfToken: req.csrfToken(),
     errorMessage: message,
+    oldInput:{
+      email:'',
+      password:""
+    },
+    validationErrors:[]
   });
 };
 
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
-  const errors = 
+  const password = req.body.password;
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      pageTitle: "Login",
+      errorMessage: errors.array()[0].msg,
+      oldInput:{
+        email:email?email:'',
+        password:password
+      },
+      validationErrors:errors.array()
+    });
+  }
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
         req.flash("error", "Invalid email or password!");
-        return res.redirect("/login");
+        // return res.redirect("/login");
+        return res.status(422).render("auth/login", {
+          path: "/login",
+          pageTitle: "Login",
+          errorMessage:'Invalid email.',
+          oldInput:{
+            email:email,
+            password:password
+          },
+          validationErrors:[{param:'email'}]
+        });
       }
       bcrypt
         .compare(req.body.password, user.password)
@@ -67,15 +96,26 @@ exports.postLogin = (req, res, next) => {
               res.redirect("/");
             });
           }
-          res.redirect("/login");
+          return res.status(422).render("auth/login", {
+            path: "/login",
+            pageTitle: "Login",
+            errorMessage:'Invalid Password.',
+            oldInput:{
+              email:email,
+              password:password
+            },
+            validationErrors:[{param:'password'}]
+          });
         })
         .catch((err) => {
           console.log(err);
           res.redirect("/login");
         });
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(err=>{
+      const error = new Error(err)
+      error.httpStatusCode=500;
+      return next(error)
     });
 };
 
@@ -90,6 +130,12 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message,
+    oldInput:{
+      email:'',
+      password:'',
+      confirmPassword:''
+    },
+    validationErrors:[]
   });
 };
 
@@ -105,6 +151,12 @@ exports.postSignup = (req, res, next) => {
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput:{
+        email:email,
+        password:password,
+        confirmPassword:confirmPassword
+      },
+      validationErrors:errors.array()
     });
   }
 
@@ -139,8 +191,10 @@ exports.postSignup = (req, res, next) => {
             console.log(err);
           });
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(err=>{
+        const error = new Error(err)
+        error.httpStatusCode=500;
+        return next(error)
       });
   });
 };
@@ -201,8 +255,10 @@ exports.postReset = (req, res, next) => {
             console.log(err);
           });
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(err=>{
+        const error = new Error(err)
+        error.httpStatusCode=500;
+        return next(error)
       });
   });
 };
@@ -230,7 +286,11 @@ exports.getNewPassword = (req, res, next) => {
         passwordToken: token,
       });
     })
-    .catch((err) => console.log(err));
+    .catch(err=>{
+      const error = new Error(err)
+      error.httpStatusCode=500;
+      return next(error)
+    });
 };
 
 exports.postNewPassword = (req, res, next) => {
@@ -256,7 +316,9 @@ exports.postNewPassword = (req, res, next) => {
     .then((result) => {
       res.redirect("/");
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(err=>{
+      const error = new Error(err)
+      error.httpStatusCode=500;
+      return next(error)
     });
 };

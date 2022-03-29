@@ -13,14 +13,14 @@ const productSchema = new Schema({
   },
   description:{
     type:String,
-    required:true
+    required:true,
   },
   imageUrl:{
     type:String,
-    required:true
+    required:true,
   },
   userId:{
-    type:Schema.Types.ObjectId,
+    type:mongoose.Schema.Types.ObjectId,
     ref:'User'
   }
 

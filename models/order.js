@@ -11,7 +11,7 @@ const orderSchema = new Schema({
   user: {
     email: { type: String, required: true },
     userId: { 
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref:"User"
     },
