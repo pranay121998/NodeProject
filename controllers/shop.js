@@ -9,7 +9,7 @@ const stripe = require("stripe")(
 const Product = require("../models/product");
 const Order = require("../models/order");
 
-const ITEMS_PER_PAGE = 1;
+const ITEMS_PER_PAGE = 2;
 // const sequelize = require("../utils/database");
 
 exports.getProducts = (req, res, next) => {
@@ -172,13 +172,24 @@ exports.postCart = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
+  let invoices=[];
   Order.find()
     .then((orders) => {
-      console.log("djlkasdjkl ", orders);
+      
+      console.log("djlkasdjkl ", orders,req.user);
+     orders.forEach(order=>{
+      if(order.user.userId.toString() === req.user._id.toString()){
+        invoices.push(order)
+      }
+     })
+      return invoices
+     
+    }).then(result=>{
+      
       res.render("shop/orders", {
         pageTitle: "Orders",
         path: "/orders",
-        orders: orders,
+        orders: invoices,
       });
     })
     .catch((err) => {

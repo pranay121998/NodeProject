@@ -21,22 +21,22 @@ const store = new MongoDbStore({
 });
 
 const fileStorage = multer.diskStorage({
-  destination: function(req,file,cb){
-    cb(null,'images')
+  destination: function (req, file, cb) {
+    cb(null, 'images')
   },
-  filename:function(req,file,cb){
-    const d  =new Date()
+  filename: function (req, file, cb) {
+    const d = new Date()
     const uniqueSuffix = `${d.getDate()}-${d.getMonth()}-${d.getFullYear()}`//Math.round(Math.random() * 1E9)//Math.round(Math.random() * 1E9)
-    cb(null, uniqueSuffix+ "-" + file.originalname)
+    cb(null, uniqueSuffix + "-" + file.originalname)
   }
 })
 
-const fileFilter = (req,file,cb)=>{
-  if(file.mimetype === 'image/png' ||file.mimetype === 'image/jpg' ||file.mimetype === 'image/jpeg'){
-      cb(null,true)
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+    cb(null, true)
   }
-  else{
-    cb(null,false)
+  else {
+    cb(null, false)
   }
 }
 // const mongoConnect = require("./utils/database").mongoConnect;
@@ -51,9 +51,9 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({storage:fileStorage,fileFilter:fileFilter}).single('image'))
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'))
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/images",express.static(path.join(__dirname, "images")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 
 app.use(
@@ -76,18 +76,18 @@ app.use((req, res, next) => {
     : false;
   res.locals.csrfToken = req.csrfToken();
   next();
+
 });
 
 
 app.use((req, res, next) => {
- 
+
   if (!req.session.user) {
     return next();
   }
   User.findById(req.session.user._id)
     .then((user) => {
-      if(!user)
-      {
+      if (!user) {
         return next()
       }
       req.user = user;
@@ -95,7 +95,7 @@ app.use((req, res, next) => {
     })
     .catch((err) => {
       // console.log(err);
-       next(new Error(err));
+      next(new Error(err));
     });
 });
 
@@ -107,11 +107,11 @@ app.use(shopRoutes);
 app.use(authRoutes);
 
 
-app.get('/500',errorController.get500);
+app.get('/500', errorController.get500);
 
 app.use(errorController.get404);
 
-app.use((error,req,res,next)=>{
+app.use((error, req, res, next) => {
   // res.redirect('/500');
   res.status(500).render("500", {
     pageTitle: "Error!",
