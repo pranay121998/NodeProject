@@ -10,7 +10,7 @@ const flash = require('connect-flash')
 const multer = require('multer')
 
 const MONGODB_URI =
-  "mongodb+srv://Pranay:lDRSNjUdwmle0CSj@cluster0.1vdgw.mongodb.net/nodeProject?retryWrites=true&w=majority";
+  "mongodb+srv://Pranay:VTDqknyAzeSCQwaV@cluster0.1vdgw.mongodb.net/nodeProject?retryWrites=true&w=majority";
 
 const csrfProtection = csrf();
 
